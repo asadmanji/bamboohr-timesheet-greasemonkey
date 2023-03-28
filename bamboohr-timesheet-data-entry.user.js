@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         BambooHR Timesheet Data Entry Extension
-// @version      0.2
+// @version      0.3
 // @description  Fill BambooHR Timesheet month with templates, inspired by https://github.com/skgsergio/greasemonkey-scripts
 // @author       Asad Manji
 // @match        https://*.bamboohr.com/employees/timesheet/*
@@ -22,7 +22,7 @@ const BUTTON_CLASSLIST = 'fab-Button fab-Button--small fab-Button--width100';
   let projectsMap = new Map(tsd.projectsWithTasks.allIds.map(i => [i, tsd.projectsWithTasks.byId[i].name] ));
   let datesToFill = tsd.timesheet.dailyDetails;
 
-  
+  if (!tsd.timesheet.canEdit) return;
     
   /* Fill Month Button */
   let container_fill = document.createElement('div');
