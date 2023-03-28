@@ -10,6 +10,7 @@
 
 'use strict';
 
+const WRAPPER_CLASSLIST = 'TimesheetSummary';
 const CONTAINER_CLASSLIST = 'TimesheetSummary__clockButtonWrapper';
 const BUTTON_CLASSLIST = 'fab-Button fab-Button--small fab-Button--width100';
 
@@ -19,10 +20,12 @@ const BUTTON_CLASSLIST = 'fab-Button fab-Button--small fab-Button--width100';
   let tsd = JSON.parse(document.getElementById('js-timesheet-data').innerHTML);
   let employeeId = tsd.employeeId;
   let projectsMap = new Map(tsd.projectsWithTasks.allIds.map(i => [i, tsd.projectsWithTasks.byId[i].name] ));
+  projectsMap.set('99', 'Fake timecode for testing');
   let datesToFill = tsd.timesheet.dailyDetails;
 
   
-  /* Fill Month */
+    
+  /* Fill Month Button */
   let container_fill = document.createElement('div');
   container_fill.classList.value = CONTAINER_CLASSLIST;
 
@@ -34,6 +37,7 @@ const BUTTON_CLASSLIST = 'fab-Button fab-Button--small fab-Button--width100';
   btn_fill.innerText = 'Fill Month';
 
   btn_fill.onclick = function () { 
+    let projectId = document.querySelector('#MyProjectSelector').value;
 		let entries = [];
     
     for (const [day, details] of Object.entries(tsd.timesheet.dailyDetails)) {
@@ -46,35 +50,70 @@ const BUTTON_CLASSLIST = 'fab-Button fab-Button--small fab-Button--width100';
       
       entries.push({
           id: null,
-          trackingId: null,
+          dailyEntryId: 1,
+          taskId: null,
           employeeId: employeeId,
+          hours: 8, 
           date: day,
-          projectId: null,
+          projectId: projectId,
           note: ''
         });
     }
     
-    alert("Projects:\n" + JSON.stringify(...projectsMap) + "\nEntries:\n" + JSON.stringify(entries)); 
-   
+    fetch(
+      `${window.location.origin}/timesheet/hour/entries`,
+      {
+        method: 'POST',
+        mode: 'cors',
+        cache: 'no-cache',
+        credentials: 'same-origin',
+        headers: {
+          'content-type': 'application/json; charset=UTF-8',
+          'x-csrf-token': unsafeWindow.CSRF_TOKEN
+        },
+        body: JSON.stringify({ hours: entries })
+      }
+    ).then(data => {
+      if (data.status == 200) {
+        alert(`Created ${entries.length} entries.`);
+        location.reload();
+      } else {
+        data.text().then(t => alert(`Request error!\nHTTP Code: ${data.status}\nResponse:\n${t}`));
+      }
+    }).catch(err => alert(`Fetch error!\n\n${err}`));
   }
 
-    
-  /* Delete Month */
-  let container_del = document.createElement('div');
-  container_del.classList.value = CONTAINER_CLASSLIST;
+  
+  /* Project Select Dropdown */  
+  let select_projects = document.createElement('select');
+  select_projects.id = 'MyProjectSelector';
+  select_projects.name = 'MyProjectSelector';
 
-  let btn_del = document.createElement('button');
-  container_del.append(btn_del);
 
-  btn_del.type = 'button';
-  btn_del.classList.value = BUTTON_CLASSLIST;
-  btn_del.innerText = 'Delete Month';
-
-  btn_del.onclick = function () {
-    alert("Click2");
+  for (const [prjId, prjName] of projectsMap) {
+    var option = document.createElement("option");
+    option.value = prjId;
+    option.text = prjName;
+    select_projects.appendChild(option);
   }
+  
+  let label_projects = document.createElement('label');
+  label_projects.for = "MyProjectSelector";
+  label_projects.innerText = "Project: ";
+  
+  let container_projects = document.createElement('div');
+  container_projects.classList.value = CONTAINER_CLASSLIST;
+  container_projects.append(label_projects);
+  container_projects.append(select_projects);
 
-  /* Add buttons */
-  document.querySelector('.TimesheetSummary').prepend(container_del);
-  document.querySelector('.TimesheetSummary').prepend(container_fill);
+  
+  /* Create wrapper for controls */
+  let container_wrapper = document.createElement('div');
+  container_wrapper.classList.value = WRAPPER_CLASSLIST;
+  container_wrapper.append(container_projects);
+  container_wrapper.append(container_fill);
+  
+  
+  /* Add to page */
+  document.querySelector('.TimesheetSummaryContainer').prepend(container_wrapper);
 })();
