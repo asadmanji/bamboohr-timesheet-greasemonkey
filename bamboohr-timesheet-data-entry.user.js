@@ -47,6 +47,12 @@ const BUTTON_CLASSLIST = 'fab-Button fab-Button--small fab-Button--width100';
         continue;
       }
       
+      /* Skip days that  have stuff in already, e.g. time off */
+      if (details.totalHours > 0) {
+        continue;
+      }
+
+      
       entries.push({
           id: null,
           dailyEntryId: 1,
