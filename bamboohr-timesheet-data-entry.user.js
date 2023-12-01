@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         BambooHR Timesheet Data Entry Extension
-// @version      0.6
+// @version      0.7
 // @description  Fill BambooHR Timesheet month with templates, inspired by https://github.com/skgsergio/greasemonkey-scripts
 // @author       Asad Manji
 // @match        https://*.bamboohr.com/employees/timesheet/*
