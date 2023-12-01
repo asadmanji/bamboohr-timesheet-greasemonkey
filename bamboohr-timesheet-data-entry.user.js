@@ -10,6 +10,19 @@
 
 'use strict';
 
+/* Append Script Function to page
+ * This is added as a script to get around not being able to execute `onchange` functions in a sandbox
+ *
+ * Adapted from - https://stackoverflow.com/a/13485650
+ */
+function appendScript(fn) {
+  let script = document.createElement('script');
+  script.type = "text/javascript";
+  script.textContent = "(" + fn.toString() + ")()";
+  var targ = document.getElementsByTagName ('head')[0] || document.body || document.documentElement;
+  targ.appendChild(script)
+}
+
 (async function() {
 
   let tsd = JSON.parse(document.getElementById('js-timesheet-data').innerHTML);
@@ -29,6 +42,10 @@
     <div class="TimesheetSummary__clockButtonWrapper">
         <label class="fab-Label" for="MyProjectSelector">Project: </label>
         <select class="fab-SelectToggle fab-SelectToggle--width100" id="MyProjectSelector" name="MyProjectSelector"></select>
+    </div>
+    <div id="MyTaskSelectorContainer" class="TimesheetSummary__clockButtonWrapper" style="display: none;">
+        <label class="fab-Label" for="MyTaskSelector">Task: </label>
+        <select class="fab-SelectToggle fab-SelectToggle--width100" id="MyTaskSelector" name="MyTaskSelector"></select>
     </div>
     <div class="TimesheetSummary__clockButtonWrapper">
         <label class="fab-Label" for="MyDateRangeField">Dates: </label>
@@ -63,6 +80,47 @@
     }
     return numbers;
   }
+  
+  
+  /* Populate task Select Dropdown Options */
+  let add_project_onchange = function() {
+    let tsd = JSON.parse(document.getElementById('js-timesheet-data').innerHTML);
+    let tasksMap = new Map(tsd.projectsWithTasks.allIds.map(i => { var tasks = tsd.projectsWithTasks.byId[i].tasks; return [i, new Map(tasks.allIds.map(j => [j, tasks.byId[j].name]))] } ));
+  	
+    let select_tasks_container = document.getElementById('MyTaskSelectorContainer');
+    let select_tasks = document.getElementById('MyTaskSelector');
+    
+    let on_change = function () {
+      let projectId = document.querySelector('#MyProjectSelector').value;
+
+      // Clear select options
+      select_tasks.innerHTML = '';
+      
+      let tasks = tasksMap.get(projectId);
+
+      if (tasks.size == 0) {
+        select_tasks_container.style.display = "none";
+      } else {
+        select_tasks_container.style.display = "block";
+
+        for (const [taskId, taskName] of tasks) {
+          var option = document.createElement("option");
+          option.value = taskId;
+          option.text = taskName;
+          select_tasks.appendChild(option);
+        }
+      }
+    }
+    
+    document.getElementById('MyProjectSelector').onchange = on_change;
+    
+    // Call once when then page loads for the first selected project
+    document.addEventListener('DOMContentLoaded', function() {
+      on_change();
+    }, false);
+  }
+  
+  appendScript(add_project_onchange);
 
 
   /* Populate project Select Dropdown Options */  
@@ -80,6 +138,7 @@
 
   btn_fill.onclick = function () { 
     let projectId = document.querySelector('#MyProjectSelector').value;
+    let taskId = document.querySelector('#MyTaskSelector').value || null;
     let hoursToFill = parseInt(document.querySelector('#MyHoursField').value);
     let dateRangeToFill = parseIntRange(document.querySelector('#MyDateRangeField').value);
     let entries = [];
@@ -105,7 +164,7 @@
       entries.push({
           id: null,
           dailyEntryId: 1,
-          taskId: null,
+          taskId: taskId,
           employeeId: employeeId,
           hours: hoursToFill, 
           date: day,
