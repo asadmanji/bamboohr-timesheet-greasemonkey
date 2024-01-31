@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         BambooHR Timesheet Data Entry Extension
-// @version      0.7
+// @version      0.8
 // @description  Fill BambooHR Timesheet month with templates, inspired by https://github.com/skgsergio/greasemonkey-scripts
 // @author       Asad Manji
 // @match        https://*.bamboohr.com/employees/timesheet/*
@@ -29,6 +29,7 @@ function appendScript(fn) {
   let employeeId = tsd.employeeId;
   let projectsMap = new Map(tsd.projectsWithTasks.allIds.map(i => [i, tsd.projectsWithTasks.byId[i].name] ));
   let datesToFill = tsd.timesheet.dailyDetails;
+  let totalTimesheetDays = tsd.timesheet.totalHours / 8;
 
   if (!tsd.timesheet.canEdit) return;
   
@@ -63,7 +64,6 @@ function appendScript(fn) {
     `;
   
   document.querySelector('.TimesheetSummaryContainer').prepend(container_wrapper);
-  
   
   /* Number range parse function - https://codereview.stackexchange.com/questions/242077/parsing-numbers-and-ranges-from-a-string-in-javascript */
   let parseIntRange = function(string) {
@@ -196,6 +196,15 @@ function appendScript(fn) {
       }
     }).catch(err => alert(`Fetch error!\n\n${err}`));
   }
+  
+  /* Populate timesheet summary */
+  
+  let container_tsSummary = document.createElement('div');
+  container_tsSummary.classList.value = 'TimesheetSummary__payPeriodTotal';
+  container_tsSummary.innerHTML = '(' + totalTimesheetDays + ' days)';
+  
+  document.querySelector('.TimesheetSummary__payPeriodBreakdown').append(container_tsSummary);
+
   
   /* Expand timesheet entries to show project codes/hours that have been entered */
   Array
