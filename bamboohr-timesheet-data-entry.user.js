@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         BambooHR Timesheet Data Entry Extension
-// @version      0.8
+// @version      0.9
 // @description  Fill BambooHR Timesheet month with templates, inspired by https://github.com/skgsergio/greasemonkey-scripts
 // @author       Asad Manji
 // @match        https://*.bamboohr.com/employees/timesheet/*
@@ -197,13 +197,13 @@ function appendScript(fn) {
     }).catch(err => alert(`Fetch error!\n\n${err}`));
   }
   
-  /* Populate timesheet summary */
+  /* Populate timesheet summary (depending if looking at current or previous pay period) */
   
   let container_tsSummary = document.createElement('div');
-  container_tsSummary.classList.value = 'TimesheetSummary__payPeriodTotal';
   container_tsSummary.innerHTML = '(' + totalTimesheetDays + ' days)';
   
-  document.querySelector('.TimesheetSummary__payPeriodBreakdown').append(container_tsSummary);
+  document.querySelector('.TimesheetSummary__payPeriodTotal')?.after(container_tsSummary);
+  document.querySelector('.ApprovalSummary__payPeriodTotal')?.after(container_tsSummary);
 
   
   /* Expand timesheet entries to show project codes/hours that have been entered */
