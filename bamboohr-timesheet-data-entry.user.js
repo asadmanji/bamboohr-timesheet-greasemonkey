@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         BambooHR Timesheet Data Entry Extension
-// @version      0.9
+// @version      0.10
 // @description  Fill BambooHR Timesheet month with templates, inspired by https://github.com/skgsergio/greasemonkey-scripts
 // @author       Asad Manji
 // @match        https://*.bamboohr.com/employees/timesheet/*
@@ -37,16 +37,17 @@ function appendScript(fn) {
   let container_wrapper = document.createElement('div');
   container_wrapper.classList.value = 'TimesheetSummary';
   container_wrapper.innerHTML = `
+    <style>.select-width100 {width: 100% !important;}</style>
     <div class="TimesheetSummary__title">
         Auto-Fill Timesheet
     </div>
     <div class="TimesheetSummary__clockButtonWrapper">
         <label class="fab-Label" for="MyProjectSelector">Project: </label>
-        <select class="fab-SelectToggle fab-SelectToggle--width100" id="MyProjectSelector" name="MyProjectSelector"></select>
+        <select class="fab-SelectToggle fab-SelectToggle--width100 select-width100" id="MyProjectSelector" name="MyProjectSelector"></select>
     </div>
     <div id="MyTaskSelectorContainer" class="TimesheetSummary__clockButtonWrapper" style="display: none;">
         <label class="fab-Label" for="MyTaskSelector">Task: </label>
-        <select class="fab-SelectToggle fab-SelectToggle--width100" id="MyTaskSelector" name="MyTaskSelector"></select>
+        <select class="fab-SelectToggle fab-SelectToggle--width100 select-width100" id="MyTaskSelector" name="MyTaskSelector"></select>
     </div>
     <div class="TimesheetSummary__clockButtonWrapper">
         <label class="fab-Label" for="MyDateRangeField">Dates: </label>
