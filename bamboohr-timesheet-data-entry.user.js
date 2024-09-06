@@ -23,6 +23,14 @@ function appendScript(fn) {
   targ.appendChild(script)
 }
 
+function onPageLoad(fn) {
+  if (document.readyState !== 'loading') {
+    setTimeout(fn, 0);
+  } else {
+    document.addEventListener('DOMContentLoaded', fn, false);
+  }
+}
+
 (async function() {
 
   let tsd = JSON.parse(document.getElementById('js-timesheet-data').innerHTML);
@@ -116,9 +124,7 @@ function appendScript(fn) {
     document.getElementById('MyProjectSelector').onchange = on_change;
     
     // Call once when then page loads for the first selected project
-    document.addEventListener('DOMContentLoaded', function() {
-      on_change();
-    }, false);
+    onPageLoad(on_change);
   }
   
   appendScript(add_project_onchange);
