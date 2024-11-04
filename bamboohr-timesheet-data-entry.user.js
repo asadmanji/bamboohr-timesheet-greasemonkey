@@ -43,7 +43,8 @@ function onPageLoad(fn) {
   
   /* Inject custom controls onto page */
   let container_wrapper = document.createElement('div');
-  container_wrapper.classList.value = 'TimesheetSummary';
+  container_wrapper.classList.value = 'fabric-k5i39i-root';
+  container_wrapper.style.marginBottom = '32px';
   container_wrapper.innerHTML = `
     <style>.select-width100 {width: 100% !important;}</style>
     <div class="TimesheetSummary__title">
@@ -51,11 +52,11 @@ function onPageLoad(fn) {
     </div>
     <div class="TimesheetSummary__clockButtonWrapper">
         <label class="fab-Label" for="MyProjectSelector">Project: </label>
-        <select class="fab-SelectToggle fab-SelectToggle--width100 select-width100" id="MyProjectSelector" name="MyProjectSelector"></select>
+        <select class="fab-SelectToggle__guts fab-SelectToggle__guts--form select-width100" id="MyProjectSelector" name="MyProjectSelector" style="border-color: #c6c2bf; padding-right: 12px"></select>
     </div>
     <div id="MyTaskSelectorContainer" class="TimesheetSummary__clockButtonWrapper" style="display: none;">
         <label class="fab-Label" for="MyTaskSelector">Task: </label>
-        <select class="fab-SelectToggle fab-SelectToggle--width100 select-width100" id="MyTaskSelector" name="MyTaskSelector"></select>
+        <select class="fab-SelectToggle__guts fab-SelectToggle__guts--form select-width100" id="MyTaskSelector" name="MyTaskSelector" style="border-color: #c6c2bf; padding-right: 12px"></select>
     </div>
     <div class="TimesheetSummary__clockButtonWrapper">
         <label class="fab-Label" for="MyDateRangeField">Dates: </label>
@@ -72,7 +73,7 @@ function onPageLoad(fn) {
     </div>
     `;
   
-  document.querySelector('.TimesheetSummaryContainer').prepend(container_wrapper);
+  document.querySelector('div.fabric-5qovnk-root.MuiBox-root.css-f270la').prepend(container_wrapper);
   
   /* Number range parse function - https://codereview.stackexchange.com/questions/242077/parsing-numbers-and-ranges-from-a-string-in-javascript */
   let parseIntRange = function(string) {
