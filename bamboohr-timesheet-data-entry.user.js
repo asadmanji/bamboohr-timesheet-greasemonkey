@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         BambooHR Timesheet Data Entry Extension
-// @version      0.12
+// @version      0.13
 // @description  Fill BambooHR Timesheet month with templates, inspired by https://github.com/skgsergio/greasemonkey-scripts
 // @author       Asad Manji
 // @match        https://*.bamboohr.com/employees/timesheet/*
@@ -46,17 +46,21 @@ function onPageLoad(fn) {
   container_wrapper.classList.value = 'fabric-k5i39i-root';
   container_wrapper.style.marginBottom = '32px';
   container_wrapper.innerHTML = `
-    <style>.select-width100 {width: 100% !important;}</style>
+    <style>
+       .my-select--fullWidth {width: 100% !important;}
+       .my-select--fullWidth A {line-height: 40px !important; background: inherit !important; border: none !important;}
+       .my-select--fullWidth A B {background-position-y: 8px !important;}
+    </style>
     <div class="TimesheetSummary__title">
         Auto-Fill Timesheet
     </div>
     <div class="TimesheetSummary__clockButtonWrapper">
         <label class="fab-Label" for="MyProjectSelector">Project: </label>
-        <select class="fab-SelectToggle__guts fab-SelectToggle__guts--form select-width100" id="MyProjectSelector" name="MyProjectSelector" style="border-color: #c6c2bf; padding-right: 12px"></select>
+        <select class="my-select--fullWidth fab-TextInput" id="MyProjectSelector" name="MyProjectSelector"></select>
     </div>
     <div id="MyTaskSelectorContainer" class="TimesheetSummary__clockButtonWrapper" style="display: none;">
         <label class="fab-Label" for="MyTaskSelector">Task: </label>
-        <select class="fab-SelectToggle__guts fab-SelectToggle__guts--form select-width100" id="MyTaskSelector" name="MyTaskSelector" style="border-color: #c6c2bf; padding-right: 12px"></select>
+        <select class="my-select--fullWidth fab-TextInput" id="MyTaskSelector" name="MyTaskSelector"></select>
     </div>
     <div class="TimesheetSummary__clockButtonWrapper">
         <label class="fab-Label" for="MyDateRangeField">Dates: </label>
@@ -210,8 +214,8 @@ function onPageLoad(fn) {
   let container_tsSummary = document.createElement('div');
   container_tsSummary.innerHTML = '(' + totalTimesheetDays + ' days)';
   
-  document.querySelector('.TimesheetSummary__payPeriodTotal')?.after(container_tsSummary);
-  document.querySelector('.ApprovalSummary__payPeriodTotal')?.after(container_tsSummary);
+  document.querySelector('.fabric-y6dwwl-root')?.before(container_tsSummary);
+  document.querySelector('.fabric-o7g6pu-root')?.after(container_tsSummary);
 
   
   /* Expand timesheet entries to show project codes/hours that have been entered */
