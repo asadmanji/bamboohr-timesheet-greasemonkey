@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         BambooHR Timesheet Data Entry Extension
-// @version      0.13
+// @version      0.14
 // @description  Fill BambooHR Timesheet month with templates, inspired by https://github.com/skgsergio/greasemonkey-scripts
 // @author       Asad Manji
 // @match        https://*.bamboohr.com/employees/timesheet/*
@@ -38,12 +38,27 @@ function onPageLoad(fn) {
   let projectsMap = new Map(tsd.projectsWithTasks.allIds.map(i => [i, tsd.projectsWithTasks.byId[i].name] ));
   let datesToFill = tsd.timesheet.dailyDetails;
   let totalTimesheetDays = tsd.timesheet.totalHours / 8;
+  let sidebarCssSelector = '.TimesheetContent > .MuiBox-root';
+  let containerCss = 'fabric-k5i39i-root';
+
+  /* Populate timesheet summary (depending if looking at current or previous pay period) */
+  
+  let container_tsSummary = document.createElement('div');
+  container_tsSummary.classList.value = containerCss;
+  container_tsSummary.style.marginBottom = '32px';
+  container_tsSummary.innerHTML = `
+    <div class="TimesheetSummary__title">
+        Period Summary: ` + totalTimesheetDays + ` days
+    </div>
+  `;
+  
+  document.querySelector(sidebarCssSelector).prepend(container_tsSummary);
 
   if (!tsd.timesheet.canEdit) return;
   
   /* Inject custom controls onto page */
   let container_wrapper = document.createElement('div');
-  container_wrapper.classList.value = 'fabric-k5i39i-root';
+  container_wrapper.classList.value = containerCss;
   container_wrapper.style.marginBottom = '32px';
   container_wrapper.innerHTML = `
     <style>
@@ -77,7 +92,7 @@ function onPageLoad(fn) {
     </div>
     `;
   
-  document.querySelector('div.fabric-5qovnk-root.MuiBox-root.css-f270la').prepend(container_wrapper);
+  document.querySelector(sidebarCssSelector).prepend(container_wrapper);
   
   /* Number range parse function - https://codereview.stackexchange.com/questions/242077/parsing-numbers-and-ranges-from-a-string-in-javascript */
   let parseIntRange = function(string) {
@@ -209,14 +224,6 @@ function onPageLoad(fn) {
     }).catch(err => alert(`Fetch error!\n\n${err}`));
   }
   
-  /* Populate timesheet summary (depending if looking at current or previous pay period) */
-  
-  let container_tsSummary = document.createElement('div');
-  container_tsSummary.innerHTML = '(' + totalTimesheetDays + ' days)';
-  
-  document.querySelector('.fabric-y6dwwl-root')?.before(container_tsSummary);
-  document.querySelector('.fabric-o7g6pu-root')?.after(container_tsSummary);
-
   
   /* Expand timesheet entries to show project codes/hours that have been entered */
   Array
