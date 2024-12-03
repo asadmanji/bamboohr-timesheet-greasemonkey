@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         BambooHR Timesheet Data Entry Extension
-// @version      0.14
+// @version      0.15
 // @description  Fill BambooHR Timesheet month with templates, inspired by https://github.com/skgsergio/greasemonkey-scripts
 // @author       Asad Manji
 // @match        https://*.bamboohr.com/employees/timesheet/*
@@ -31,24 +31,54 @@ function onPageLoad(fn) {
   }
 }
 
+function summariseDaysByProject(data) {
+  const summary = {};
+
+  Object.values(data).forEach((entry) => {
+    if (entry.hourEntries && entry.hourEntries.length > 0) {
+      entry.hourEntries.forEach((hourEntry) => {
+        const projectName = hourEntry.projectName || "Unknown Project";
+        const hours = hourEntry.hours || 0;
+
+        if (!summary[projectName]) {
+          summary[projectName] = 0;
+        }
+
+        summary[projectName] += hours / 8;
+      });
+    }
+  });
+
+  return Object.entries(summary);
+}
+
+
 (async function() {
 
   let tsd = JSON.parse(document.getElementById('js-timesheet-data').innerHTML);
   let employeeId = tsd.employeeId;
   let projectsMap = new Map(tsd.projectsWithTasks.allIds.map(i => [i, tsd.projectsWithTasks.byId[i].name] ));
   let datesToFill = tsd.timesheet.dailyDetails;
-  let totalTimesheetDays = tsd.timesheet.totalHours / 8;
+  let totalTimesheetDays = summariseDaysByProject(tsd.timesheet.dailyDetails);
   let sidebarCssSelector = '.TimesheetContent > .MuiBox-root';
   let containerCss = 'fabric-k5i39i-root';
 
   /* Populate timesheet summary (depending if looking at current or previous pay period) */
+ 
   
   let container_tsSummary = document.createElement('div');
   container_tsSummary.classList.value = containerCss;
   container_tsSummary.style.marginBottom = '32px';
   container_tsSummary.innerHTML = `
     <div class="TimesheetSummary__title">
-        Period Summary: ` + totalTimesheetDays + ` days
+        Period Summary
+    </div>
+    <div class="">
+        <table width="100%">
+           <tbody>
+           ${totalTimesheetDays.map(([projectName, days], i) => `<tr> <td>${projectName}</td> <td>${days} days</td> </tr>`).join("")}
+           </tbody>
+        </table>
     </div>
   `;
   
